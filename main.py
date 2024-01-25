@@ -87,4 +87,4 @@ if __name__ == "__main__":
         exit(1)
 
     # Call the main function with the chosen strategy
-    main(strategy)
+    main(print_strategy=strategy)
