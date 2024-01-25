@@ -10,34 +10,34 @@ class PrintStrategy:
 
 
 class ConsolePrint(PrintStrategy):
-    def print_dependencies(self, nodes_with_dependencies, output_stream):
+    def print_dependencies(self, nodes_with_dependencies: list[str], out: io.StringIO):
         total_nodes = len(nodes_with_dependencies)
 
         for index, (node, dependencies) in enumerate(nodes_with_dependencies, start=1):
             if dependencies:
-                output_stream.write(f"{node} depends on: {', '.join(dependencies)}")
+                out.write(f"{node} depends on: {', '.join(dependencies)}")
             else:
-                output_stream.write(f"{node} has no dependencies")
+                out.write(f"{node} has no dependencies")
 
             if index < total_nodes:
-                output_stream.write("\n")
+                out.write("\n")
 
 
 class ConsolePrintAsciiArt(PrintStrategy):
-    def print_dependencies(self, nodes_with_dependencies, output_stream):
+    def print_dependencies(self, nodes_with_dependencies: list[str], out: io.StringIO):
         total_nodes = len(nodes_with_dependencies)
 
         for index, (node, dependencies) in enumerate(nodes_with_dependencies, start=1):
-            output_stream.write(f"{node}")
+            out.write(f"{node}")
 
             if index < total_nodes:
-                output_stream.write("\n")
+                out.write("\n")
 
             for depth, dep in enumerate(dependencies, start=1):
-                output_stream.write(f"{'  ' * depth}└── {dep}")
+                out.write(f"{'  ' * depth}└── {dep}")
 
                 if index < total_nodes:
-                    output_stream.write("\n")
+                    out.write("\n")
 
 
 def main(print_strategy: PrintStrategy, output_stream: io.StringIO):
