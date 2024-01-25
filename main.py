@@ -17,7 +17,7 @@ class ConsolePrint(PrintStrategy):
                 print(f"{node} has no dependencies")
 
 
-class ConsolePrint2(PrintStrategy):
+class ConsolePrintAsciiArt(PrintStrategy):
     def print_dependencies(self, nodes_with_dependencies):
         for node, dependencies in nodes_with_dependencies:
             print(f"{node}")
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         help="Use ConsolePrint strategy for printing.",
     )
     parser.add_argument(
-        "--print-console2",
+        "--print-asciiart",
         action="store_true",
         default=False,
         help="Print dependencies using tabs to show nesting.",
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     # Instantiate the appropriate print strategy
     if args.print_console:
         strategy = ConsolePrint()
-    elif args.print_console2:
-        strategy = ConsolePrint2()
+    elif args.print_asciiart:
+        strategy = ConsolePrintAsciiArt()
     else:
         parser.print_help()
         print("Please specify a valid printing strategy.")
