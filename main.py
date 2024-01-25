@@ -3,9 +3,13 @@ import argparse
 import networkx
 
 
-class ConsolePrint:
-    @staticmethod
-    def print_dependencies(nodes_with_dependencies):
+class PrintStrategy:
+    def print_dependencies(self, nodes_with_dependencies):
+        raise NotImplementedError("Subclasses must implement print_dependencies method")
+
+
+class ConsolePrint(PrintStrategy):
+    def print_dependencies(self, nodes_with_dependencies):
         for node, dependencies in nodes_with_dependencies:
             if dependencies:
                 print(f"{node} depends on: {', '.join(dependencies)}")
@@ -13,16 +17,48 @@ class ConsolePrint:
                 print(f"{node} has no dependencies")
 
 
-class ConsolePrint2:
-    @staticmethod
-    def print_dependencies(nodes_with_dependencies):
+class ConsolePrint2(PrintStrategy):
+    def print_dependencies(self, nodes_with_dependencies):
         for node, dependencies in nodes_with_dependencies:
             print(f"{node}")
             for depth, dep in enumerate(dependencies, start=1):
                 print(f"{'  ' * depth}└── {dep}")
 
 
-def main():
+def main(print_strategy: PrintStrategy):
+    # Create a Directed Acyclic Graph (DAG)
+    dag = networkx.DiGraph()
+
+    # Define nodes and edges
+    nodes = [
+        "Task A",
+        "Task B",
+        "Task C",
+        "Task D",
+        "Task E",
+        "Task F",
+    ]
+    edges = [
+        ("Task A", "Task B"),
+        ("Task A", "Task C"),
+        ("Task B", "Task D"),
+        ("Task C", "Task D"),
+        ("Task F", "Task E"),
+        ("Task A", "Task E"),
+    ]
+
+    # Add nodes and edges to the DAG
+    dag.add_nodes_from(nodes)
+    dag.add_edges_from(edges)
+
+    # Get nodes and their dependencies
+    nodes_with_dependencies = [(node, list(dag.predecessors(node))) for node in nodes]
+
+    # Display DAG dependencies based on the injected strategy
+    print_strategy.print_dependencies(nodes_with_dependencies)
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Create and display a Directed Acyclic Graph (DAG)."
     )
@@ -40,33 +76,15 @@ def main():
     )
     args = parser.parse_args()
 
-    # Create a Directed Acyclic Graph (DAG)
-    dag = networkx.DiGraph()
-
-    # Define nodes and edges
-    nodes = ["Task A", "Task B", "Task C", "Task D"]
-    edges = [
-        ("Task A", "Task B"),
-        ("Task A", "Task C"),
-        ("Task B", "Task D"),
-        ("Task C", "Task D"),
-    ]
-
-    # Add nodes and edges to the DAG
-    dag.add_nodes_from(nodes)
-    dag.add_edges_from(edges)
-
-    # Get nodes and their dependencies
-    nodes_with_dependencies = [(node, list(dag.predecessors(node))) for node in nodes]
-
-    # Display DAG dependencies based on the chosen strategy
+    # Instantiate the appropriate print strategy
     if args.print_console:
-        ConsolePrint.print_dependencies(nodes_with_dependencies)
+        strategy = ConsolePrint()
     elif args.print_console2:
-        ConsolePrint2.print_dependencies(nodes_with_dependencies)
+        strategy = ConsolePrint2()
     else:
+        parser.print_help()
         print("Please specify a valid printing strategy.")
+        exit(1)
 
-
-if __name__ == "__main__":
-    main()
+    # Call the main function with the chosen strategy
+    main(strategy)
