@@ -1,31 +1,46 @@
 import argparse
+import io
 
 import networkx
 
 
 class PrintStrategy:
-    def print_dependencies(self, nodes_with_dependencies):
+    def print_dependencies(self):
         raise NotImplementedError("Subclasses must implement print_dependencies method")
 
 
 class ConsolePrint(PrintStrategy):
-    def print_dependencies(self, nodes_with_dependencies):
-        for node, dependencies in nodes_with_dependencies:
+    def print_dependencies(self, nodes_with_dependencies, output_stream):
+        total_nodes = len(nodes_with_dependencies)
+
+        for index, (node, dependencies) in enumerate(nodes_with_dependencies, start=1):
             if dependencies:
-                print(f"{node} depends on: {', '.join(dependencies)}")
+                output_stream.write(f"{node} depends on: {', '.join(dependencies)}")
             else:
-                print(f"{node} has no dependencies")
+                output_stream.write(f"{node} has no dependencies")
+
+            if index < total_nodes:
+                output_stream.write("\n")
 
 
 class ConsolePrintAsciiArt(PrintStrategy):
-    def print_dependencies(self, nodes_with_dependencies):
-        for node, dependencies in nodes_with_dependencies:
-            print(f"{node}")
+    def print_dependencies(self, nodes_with_dependencies, output_stream):
+        total_nodes = len(nodes_with_dependencies)
+
+        for index, (node, dependencies) in enumerate(nodes_with_dependencies, start=1):
+            output_stream.write(f"{node}")
+
+            if index < total_nodes:
+                output_stream.write("\n")
+
             for depth, dep in enumerate(dependencies, start=1):
-                print(f"{'  ' * depth}└── {dep}")
+                output_stream.write(f"{'  ' * depth}└── {dep}")
+
+                if index < total_nodes:
+                    output_stream.write("\n")
 
 
-def main(print_strategy: PrintStrategy):
+def main(print_strategy: PrintStrategy, output_stream: io.StringIO):
     # Create a Directed Acyclic Graph (DAG)
     dag = networkx.DiGraph()
 
@@ -54,8 +69,9 @@ def main(print_strategy: PrintStrategy):
     # Get nodes and their dependencies
     nodes_with_dependencies = [(node, list(dag.predecessors(node))) for node in nodes]
 
-    # Display DAG dependencies based on the injected strategy
-    print_strategy.print_dependencies(nodes_with_dependencies)
+    if print_strategy:
+        # Display DAG dependencies based on the injected strategy
+        print_strategy.print_dependencies(nodes_with_dependencies, output_stream)
 
 
 if __name__ == "__main__":
@@ -76,15 +92,18 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    output_stream = io.StringIO()
+
+    print_strategy = None
+
     # Instantiate the appropriate print strategy
     if args.print_console:
-        strategy = ConsolePrint()
+        print_strategy = ConsolePrint()
     elif args.print_asciiart:
-        strategy = ConsolePrintAsciiArt()
-    else:
-        parser.print_help()
-        print("Please specify a valid printing strategy.")
-        exit(1)
+        print_strategy = ConsolePrintAsciiArt()
 
-    # Call the main function with the chosen strategy
-    main(print_strategy=strategy)
+    # Call the main function with the chosen strategy and output destination
+    main(print_strategy=print_strategy, output_stream=output_stream)
+
+    if output_stream.getvalue():
+        print(output_stream.getvalue())
