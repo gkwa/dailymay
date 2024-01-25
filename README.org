@@ -1,0 +1,9 @@
+* dailymay
+
+** usage
+
+#+begin_example
+pip install --requirement requirements.txt
+python main.py --help
+python main.py --print-console2
+#+end_example
