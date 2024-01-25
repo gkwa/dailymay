@@ -1,0 +1,14 @@
+* dailymay
+
+** summary
+
+This is a description of project dailymay.
+
+** usage
+
+Example:
+#+begin_example
+make test
+./dailymay --help
+./dailymay --verbose --verbose # for debug
+#+end_example
