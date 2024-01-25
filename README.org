@@ -1,6 +1,6 @@
 * dailymay
 
-** purpose: learn how to use networkx to create a dependecy graph
+** purpose: use gpt to learn how to use networkx to create a dependecy graph
 
 ...since i haven't done leetcode.
 
