@@ -3,7 +3,7 @@ import argparse
 import networkx
 
 
-class SimplePrint:
+class ConsolePrint:
     @staticmethod
     def print_dependencies(nodes_with_dependencies):
         for node, dependencies in nodes_with_dependencies:
@@ -13,15 +13,30 @@ class SimplePrint:
                 print(f"{node} has no dependencies")
 
 
+class ConsolePrint2:
+    @staticmethod
+    def print_dependencies(nodes_with_dependencies):
+        for node, dependencies in nodes_with_dependencies:
+            print(f"{node}")
+            for depth, dep in enumerate(dependencies, start=1):
+                print(f"{'  ' * depth}└── {dep}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Create and display a Directed Acyclic Graph (DAG)."
     )
     parser.add_argument(
-        "--print-simple",
+        "--print-console",
         action="store_true",
-        default=True,
-        help="Use SimplePrint strategy for printing (default: True).",
+        default=False,
+        help="Use ConsolePrint strategy for printing.",
+    )
+    parser.add_argument(
+        "--print-console2",
+        action="store_true",
+        default=False,
+        help="Print dependencies using tabs to show nesting.",
     )
     args = parser.parse_args()
 
@@ -45,8 +60,10 @@ def main():
     nodes_with_dependencies = [(node, list(dag.predecessors(node))) for node in nodes]
 
     # Display DAG dependencies based on the chosen strategy
-    if args.print_simple:
-        SimplePrint.print_dependencies(nodes_with_dependencies)
+    if args.print_console:
+        ConsolePrint.print_dependencies(nodes_with_dependencies)
+    elif args.print_console2:
+        ConsolePrint2.print_dependencies(nodes_with_dependencies)
     else:
         print("Please specify a valid printing strategy.")
 
